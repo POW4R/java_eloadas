@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle != null ? pageTitle + ' - MarketApp' : 'MarketApp'}">MarketApp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        secondary: '#764ba2',
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        info: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav th:fragment="navbar" class="bg-gradient-to-r from-primary to-secondary shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/static" class="flex items-center space-x-2 text-white font-bold text-xl hover:text-gray-200 transition">
+                        <i class="fas fa-chart-line"></i>
+                        <span>MarketApp</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a th:href="@{/}" class="text-white hover:bg-white/20 px-3 py-2 rounded-lg transition duration-200">
+                        <i class="fas fa-home mr-2"></i>Főoldal
+                    </a>
+                    <a th:href="@{/soap}" class="text-white hover:bg-white/20 px-3 py-2 rounded-lg transition duration-200">
+                        <i class="fas fa-exchange-alt mr-2"></i>SOAP
+                    </a>
+                    <div class="relative group">
+                        <button class="text-white hover:bg-white/20 px-3 py-2 rounded-lg transition duration-200 flex items-center">
+                            <i class="fas fa-wallet mr-2"></i>Forex
+                            <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        </button>
+                        <!-- Invisible bridge to prevent dropdown from disappearing -->
+                        <div class="absolute left-0 right-0 h-2 top-full hidden group-hover:block"></div>
+                        <div class="absolute hidden group-hover:block bg-white shadow-xl rounded-lg top-full mt-2 py-2 w-56 right-0">
+                            <a th:href="@{/forex/account}" class="block px-4 py-2 text-gray-700 hover:bg-primary hover:text-white transition">
+                                <i class="fas fa-user-circle mr-2"></i>Account Info
+                            </a>
+                            <a th:href="@{/forex/current-price}" class="block px-4 py-2 text-gray-700 hover:bg-primary hover:text-white transition">
+                                <i class="fas fa-dollar-sign mr-2"></i>Aktuális Ár
+                            </a>
+                            <a th:href="@{/forex/historical-price}" class="block px-4 py-2 text-gray-700 hover:bg-primary hover:text-white transition">
+                                <i class="fas fa-chart-bar mr-2"></i>Historikus Ár
+                            </a>
+                            <a th:href="@{/forex/open}" class="block px-4 py-2 text-gray-700 hover:bg-primary hover:text-white transition">
+                                <i class="fas fa-plus-circle mr-2"></i>Pozíció Nyitás
+                            </a>
+                            <a th:href="@{/forex/positions}" class="block px-4 py-2 text-gray-700 hover:bg-primary hover:text-white transition">
+                                <i class="fas fa-list mr-2"></i>Pozíciók
+                            </a>
+                            <a th:href="@{/forex/close}" class="block px-4 py-2 text-gray-700 hover:bg-primary hover:text-white transition">
+                                <i class="fas fa-times-circle mr-2"></i>Pozíció Zárás
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="md:hidden text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-secondary/95">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a th:href="@{/}" class="block text-white hover:bg-white/20 px-3 py-2 rounded-lg transition">
+                    <i class="fas fa-home mr-2"></i>Főoldal
+                </a>
+                <a th:href="@{/soap}" class="block text-white hover:bg-white/20 px-3 py-2 rounded-lg transition">
+                    <i class="fas fa-exchange-alt mr-2"></i>SOAP
+                </a>
+                <div class="text-white px-3 py-2 font-semibold">Forex Menu:</div>
+                <a th:href="@{/forex/account}" class="block text-white hover:bg-white/20 px-6 py-2 rounded-lg transition">
+                    <i class="fas fa-user-circle mr-2"></i>Account
+                </a>
+                <a th:href="@{/forex/current-price}" class="block text-white hover:bg-white/20 px-6 py-2 rounded-lg transition">
+                    <i class="fas fa-dollar-sign mr-2"></i>Aktuális Ár
+                </a>
+                <a th:href="@{/forex/historical-price}" class="block text-white hover:bg-white/20 px-6 py-2 rounded-lg transition">
+                    <i class="fas fa-chart-bar mr-2"></i>Historikus Ár
+                </a>
+                <a th:href="@{/forex/open}" class="block text-white hover:bg-white/20 px-6 py-2 rounded-lg transition">
+                    <i class="fas fa-plus-circle mr-2"></i>Pozíció Nyitás
+                </a>
+                <a th:href="@{/forex/positions}" class="block text-white hover:bg-white/20 px-6 py-2 rounded-lg transition">
+                    <i class="fas fa-list mr-2"></i>Pozíciók
+                </a>
+                <a th:href="@{/forex/close}" class="block text-white hover:bg-white/20 px-6 py-2 rounded-lg transition">
+                    <i class="fas fa-times-circle mr-2"></i>Pozíció Zárás
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-12">
+        <div th:replace="${content}"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-sm">&copy; 2025 MarketApp - Professional Trading Platform</p>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>
+
